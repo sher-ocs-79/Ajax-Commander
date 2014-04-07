@@ -46,8 +46,8 @@ Parameters: <br />
 Use Case: Fetching new messages every 5 seconds.
 <pre>$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{limit:10}});</pre>
 
-Use Case: Adding new messsage
+Use Case: Adding a new messsage in the list.
 <pre>$.AjaxCommander.addCommand('Message', {command:'addMessage', data:{message: $('input#message').val()}});</pre>
 
-Use Case: Stop fetching messages
+Use Case: Stop fetching messages.
 <pre>$.AjaxCommander.removeCommand('Message.showMessages');</pre>
