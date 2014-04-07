@@ -1,4 +1,4 @@
 Ajax-Commander
 ==============
 
-Ajax handler for an iterative request to the server
+Ajax handler for a single or iterative request to the server
