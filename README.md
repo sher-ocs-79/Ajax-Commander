@@ -1,7 +1,7 @@
 Ajax-Commander
 ==============
 
-Is a javascript library used for invoking/removing single or heavy iterative AJAX request to the server in a much more handy and elegant way. The beauty of this library is to control the overhead Ajax by packing up different independent request into one and sends it to the server for processing. For instance when getting notifications (messages, friend request, etc...) plus getting the list of friends, list of messages, etc... you definitely ends up of having different Ajax timely request to each. It would be much complicated when you support to turn on/off each of them as desired by the user, callbacks will be injected everywhere and there resulting hard to manage isn't it? Now the Commander will makes our life easier by dealing the complexity to manage heavy iterative Ajax request.
+Is a javascript library used for invoking/removing single or heavy iterative AJAX request to the server in a much more handy and elegant way. The beauty of this library is to control the overhead Ajax by packing up different independent request into one and sends it to the server for processing. For instance when getting notifications (messages, friend request, etc...) plus getting the list of friends, list of messages, etc... you definitely ends up of having different Ajax timely request to each. It would be much complicated when you support to turn on/off each of them as desired by the user, callbacks will be injected everywhere and there resulting hard to manage isn't it? Now the Commander will makes our life easier by dealing the complexity to manage & control heavy iterative Ajax request.
 
 <b>Initialize our Commander</b>
 <pre>$.AjaxCommander.init({url:'process-ajax.php'});</pre>
