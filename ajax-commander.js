@@ -311,6 +311,3 @@ var ajaxcommander = new AjaxCommander();
 // bind object in jQuery
 $.AjaxCommander = ajaxcommander;
 
-// initiate the commander
-$.AjaxCommander.init({url:'process-ajax.php'});
-

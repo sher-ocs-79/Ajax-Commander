@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>AJAX-COMMANDER SAMPLE IMPLEMENTATION</title>
+	
+	<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script type="text/javascript" src="ajax-commander.js"></script>
+	<script type="text/javascript" src="callback-commands.js"></script>
+	
+	<script type="text/javascript">
+		// initiate the commander
+		$.AjaxCommander.init({url:'process-ajax.php'});
+	</script>
+	
+</head>
+<body>
+
+	<div>
+		<p><b>Initialize our Commander</b></p>
+		<pre>$.AjaxCommander.init({url:'process-ajax.php'});</pre>
+	</div>
+	<br />
+	<div>
+		<button id="showM" onclick="$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{limit:10}});">
+			Show Messages
+		</button>
+		<pre>
+			Showing messages will trigger an iterative call to the server every 5 seconds to fetch new data.
+			
+			$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{limit:10}});
+		</pre>
+	</div>
+	
+	<div>
+		<button id="hideM" onclick="$.AjaxCommander.removeCommand('Message.showMessages'); $('#messages_list').hide();">
+			Hide Messages
+		</button>
+		<pre>
+			Hiding the messages list will tend to stop requesting data in the server.
+			
+			$.AjaxCommander.removeCommand('Message.showMessages');
+		</pre>
+	</div>
+	
+	<p>Messages List</p>
+	<div id="messages_list"></div>
+	
+	<div>
+		<p id="notification"></p>
+		<input type="text" name="message" id="message" value="" />
+		<button onclick="$.AjaxCommander.addCommand('Message', {command:'addMessage', data:{message: $('input#message').val()}})">
+			Add Message
+		</button>
+		<pre>
+			Adding a message will do a single request to process data sent.
+			
+			$.AjaxCommander.addCommand('Message', {command:'addMessage', data:{message: $('input#message').val()}});
+		</pre>
+	</div>
+	
+	<p><b>Deal the Commander Callback</b></p>
+	<p>Every single command must have a global scope javascript object where callback methods can be evaluated by the AjaxCommander.</p>
+	<p>In this example we have "Command_Message" object declared in callback-commands.js</p>
+	<p>Take note the 'Message' as our command identifier prefixed with 'Command_' accordingly.</p>
+	<pre>
+	
+		var Command_Message = {
+		
+			showMessages: function(data) {
+				
+				$('div#messages_list').html(data.html).show();
+			},
+			addMessage: function(data){
+			
+				$('p#notification').html(data.html);
+			}
+		};
+	</pre>
+	
+</body>
+</html>

@@ -5,13 +5,19 @@ $arrResponse = array();
 $requested_commands = isset($_REQUEST['commands']) ? $_REQUEST['commands'] : array();  // POST/GET request
 
 foreach($requested_commands as $command) {
+
+	$return_data = array();
 	
+	$callback_name = composeCallbackName($command);
+	
+	$className = $command['name'];
 	$function = $command['command'];
 	$data = $command['data'];
 	
-	$return_data = $function($data);  // invoke a user defined function with a data parameter
-	
-	$callback_name = composeCallbackName($command);
+	$model = new $className();
+	if ($model instanceof Message) {
+		$return_data = $model->$function($data);  // invoke a user defined function with a data parameter
+	}
 	
 	// return the 3 required parameters
 	$arrResponse[] = array('cdata' => $return_data, 'command' => $callback_name, 'ctime' => $command['delay']);
@@ -19,25 +25,54 @@ foreach($requested_commands as $command) {
 
 $return = array('success' => !empty($arrResponse) ? TRUE : FALSE, 'response' => $arrResponse);
 
-function getMessages($data) {
+// ---------- BELOW IS JUST A SAMPLE IMPLEMENTATION TO SEND RESPONSE DATA -------------//
 
-	// create your code to return the list of messages
+class Message
+{
+	private $messages_list;
 	
-	$content = '<ul>
-					<li>Bob message</li>
-					<li>Alice message</li>	
-				</ul>';
-	
-	return array('html' => $content);  // return an array of any parameters you would like
-}
+	public function __construct() 
+	{	
+		$messages_list = array('Hey Bob!','How are you Alice?','What the Foo!','Nice to meet you Bar.');
+		
+		session_start();
+		
+		if (!isset($_SESSION['messages']) || empty($_SESSION['messages'])) {
+			$_SESSION['messages'] = $messages_list;
+		}
+		
+		$this->messages_list = $_SESSION['messages'];
+	}
 
-function editProfile($data) {
+	public function showMessages($data) 
+	{		
+		// create your own code here to return the list of messages
+				
+		$limit = isset($data['limit']) ? $data['limit'] : 0;
+		
+		$content = '<ul>';
+		foreach($this->messages_list as $message) {
+			$content .= "<li>{$message}</li>";
+		}
+		$content .= '</ul>';	
+		
+		return array('html' => $content);  // return an array of any parameters you would like
+	}
 
-	// create your code to update the profile data
-	
-	$content = '<p>Profile updated!<p>';
-	
-	return array('html' => $content);  // return an array of any parameters you would like
+	public function addMessage($data) 
+	{
+		// create your own code here to return the list of messages
+		
+		if (isset($data['message']) && !empty($data['message'])) {
+		
+			array_push($this->messages_list, $data['message']);
+			$_SESSION['messages'] = $this->messages_list;
+		}
+		
+		$content = '<p>Message Added!<p>';
+		
+		return array('html' => $content);  // return an array of any parameters you would like
+	}
 }
 
 function composeCallbackName($command) {
