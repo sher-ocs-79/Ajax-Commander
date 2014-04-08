@@ -1,7 +1,7 @@
 Ajax-Commander
 ==============
 
-Ajax handler for a single or iterative request to the server
+Is a javascript library used for invoking/removing single or heavy iterative AJAX request to the server in a much more handy approach.
 
 <b>Initialize our Commander</b>
 <pre>$.AjaxCommander.init({url:'process-ajax.php'});</pre>
