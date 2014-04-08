@@ -23,6 +23,18 @@ var Command_Message = {
     		$('p#notification').html(data.html);
     	}
 };
+
+var Command_Friends = {
+
+	showFriendRequest: function(data) {
+		
+		$('div#friends_request_list').html(data.html).show();
+	},
+	showFriendOnline: function(data) {
+		
+		$('div#friends_online_list').html(data.html).show();
+	}
+}
 </pre>
 
 <b>Commander Methods<b>
