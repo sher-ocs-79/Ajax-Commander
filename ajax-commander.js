@@ -1,5 +1,6 @@
 /**
  * @name AjaxCommander
+ * @description https://github.com/sher-ocs-79/Ajax-Commander
  * @author SherOcs <sher_ocs@yahoo.com>
  * @version 0.0001
  */
@@ -9,7 +10,8 @@ var AjaxCommander = function()
         url: '/',  // request url
         delay_default: 1,                    // 1 second default command execution
         delay_timeout: 1000,                 // execute commander every 1 milliseconds (1sec)
-        maximum_delay: 60                    // allow only less than 60secs
+        maximum_delay: 60,                   // allow only less than 60secs
+        debug: true                          // display debug messages
     };
 
     var commands_heap;
@@ -51,7 +53,7 @@ var AjaxCommander = function()
 
         if (!com_object_count(commands_heap)) {
 
-            console.log('ALL QUE COMMANDS MOVED TO HEAP');
+            __console.log('ALL QUE COMMANDS MOVED TO HEAP');
             commands_heap = commands_que;
 
             __initCommands('que');  // emptying the que since it had already transferred to heap
@@ -64,7 +66,7 @@ var AjaxCommander = function()
                     var objCommand = c_que[i];
                     if (!__isCommandExist(objCommand)) {
 
-                        console.log('QUE COMMAND MOVED TO HEAP: ' + objCommand.name+'.'+objCommand.command);
+                        __console.log('QUE COMMAND MOVED TO HEAP: ' + objCommand.name+'.'+objCommand.command);
                         if (commands_heap[objCommand.delay]) {
                             commands_heap[objCommand.delay].push(objCommand);
                         } else {
@@ -101,7 +103,7 @@ var AjaxCommander = function()
             commands_que[objCommand.delay] = [objCommand];
         }
 
-        console.log('COMMAND ADDED IN QUE: '+objCommand.name+'.'+objCommand.command);
+        __console.log('COMMAND ADDED IN QUE: '+objCommand.name+'.'+objCommand.command);
     };
 
     var __getCommandsToProcess = function() {
@@ -112,7 +114,7 @@ var AjaxCommander = function()
 
         if (com_object_count(commands_heap)) {
 
-            console.log('WAITING SCHEDULED COMMANDS TO PROCESS...');
+            __console.log('WAITING SCHEDULED COMMANDS TO PROCESS...');
 
             for (var c in commands_heap) {
                 sc = com_clock % c ? 0 : 1;  // scheduled command
@@ -124,7 +126,7 @@ var AjaxCommander = function()
 
                             process_commands.push(objCommand);
 
-                            console.log('SET LOCK COMMAND: '+objCommand.name+'.'+objCommand.command);
+                            __console.log('SET LOCK COMMAND: '+objCommand.name+'.'+objCommand.command);
                             c_heap[i].locked = 1;
                         }
                     }
@@ -156,12 +158,12 @@ var AjaxCommander = function()
 
                 if (!objCommand.persistent) {
 
-                    console.log('REMOVED COMMAND: ' + objCommand.name+'.'+objCommand.command);
+                    __console.log('REMOVED COMMAND: ' + objCommand.name+'.'+objCommand.command);
                     c_heap.splice(i, 1);
 
                 } else {
 
-                    console.log('RELEASED LOCK COMMAND: '+objCommand.name+'.'+objCommand.command);
+                    __console.log('RELEASED LOCK COMMAND: '+objCommand.name+'.'+objCommand.command);
                     c_heap[i].locked = 0;
                 }
 
@@ -178,9 +180,9 @@ var AjaxCommander = function()
             try {
                 eval('Command_' + com_response_data.command + '(cdata);');
             } catch(e) {
-                console.log(e);
+                __console.log(e);
             }
-            console.log('COMMAND EVALUATED: '+com_response_data.command);
+            __console.log('COMMAND EVALUATED: '+com_response_data.command);
         }
         __postProcessCommand(com_response_data.command, com_response_data.ctime);
     };
@@ -194,24 +196,24 @@ var AjaxCommander = function()
             var process_commands = __getCommandsToProcess();
             if (process_commands.length) {
 
-                console.log('TOTAL COMMANDS TO PROCESS: '+process_commands.length);
+                __console.log('TOTAL COMMANDS TO PROCESS: '+process_commands.length);
 
                 var _data = {commands:process_commands};
                 var _params = {url:com_config.url, data:_data, type:'post', dataType:'json'};
                 var _success = function(data) {
                     if (data.success) {
 
-                        console.log('EVALUATING COMMANDS');
+                        __console.log('EVALUATING COMMANDS');
                         for(var i=0; i<data.response.length; i++) {
                             __evaluateCommand(data.response[i])
                         }
                     } else {
-                        console.log('FATAL ERROR: ' + data.message);
+                        __console.log('FATAL ERROR: ' + data.message);
                     }
                 };
                 $.ajax(_params).done(_success).fail(function(data) {
 
-                    console.log('EXECUTING FAILOVER POST PROCESS COMMANDS');
+                    __console.log('EXECUTING FAILOVER POST PROCESS COMMANDS');
                     for(var i=0; i<process_commands.length; i++) {
                         __postProcessCommand(process_commands[i]);
                     }
@@ -220,10 +222,18 @@ var AjaxCommander = function()
         }
         catch(e)
         {
-            console.log(e);
+            __console.log(e);
         }
 
         window.setTimeout(__execCommands, com_config.delay_timeout);
+    };
+
+    var __console = {
+        log: function(msg) {
+            if (com_config.debug) {
+                console.log(msg);
+            }
+        }
     };
 
     /** PUBLIC METHODS  **/
@@ -271,7 +281,7 @@ var AjaxCommander = function()
             for(var i=0; i<c_heap.length; i++) {
                 if (c_heap[i].name == name && c_heap[i].command == command) {
 
-                    console.log('COMMAND REMOVED IN HEAP: ' + c_heap[i].name+'.'+c_heap[i].command);
+                    __console.log('COMMAND REMOVED IN HEAP: ' + c_heap[i].name+'.'+c_heap[i].command);
 
                     c_heap.splice(i, 1); break;
                 }
@@ -283,6 +293,10 @@ var AjaxCommander = function()
     this.getHeapCommands = function() {
         return commands_heap;
     };
+
+    this.setConfig = function(config) {
+        com_config = $.extend(com_config, config || {});
+    }
 };
 
 function com_object_count(o)
