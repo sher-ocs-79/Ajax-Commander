@@ -27,7 +27,7 @@ var Command_Message = {
 
 <b>Commander Methods<b>
 <pre>addCommand(identifier, configs)</pre>
-Description: Is use to set a command to be executed on a timely routine or single call.
+Description: Is use to set a command that to be executed on a timely routine or single iteration.
 
 Parameters: <br />
 * identifier String
