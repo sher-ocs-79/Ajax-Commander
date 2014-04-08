@@ -9,7 +9,7 @@ Is a Javascript library used for invoking/removing single or heavy iterative AJA
 <b>Deal the Commander Callback</b><br />
 Every single command must have a global scope javascript object where callback methods can be evaluated by the AjaxCommander.
 In this example we have "Command_Message" object declared in callback-commands.js
-Take note the variable 'Message' as our command identifier prefixed with 'Command_' accordingly.
+Take note the variable 'Message' as our command identifier prefixed with a constant 'Command_' accordingly.
 
 <pre>
 var Command_Message = {
