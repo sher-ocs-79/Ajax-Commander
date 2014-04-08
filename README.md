@@ -45,10 +45,11 @@ Parameters:
 	
 <b>Execute a Command</b>
 <br />
-Use Case: Fetching new messages and new friend request every 5 seconds respectively
+Use Case: Fetching new messages and new friend request every 5 seconds respectively, while getting the list of online friends every 10 seconds.
 <pre>
 $.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{limit:10}});
 $.AjaxCommander.addCommand('Friends', {command:'showFriendRequest', persistent:true, delay:5, data:{limit:10}});
+$.AjaxCommander.addCommand('Friends', {command:'showFriendOnline', persistent:true, delay:10, data:{limit:10}});
 </pre>
 
 Use Case: Adding a new messsage in the list.
