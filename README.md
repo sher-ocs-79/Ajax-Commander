@@ -28,6 +28,7 @@ var Command_Message = {
 <b>Commander Methods<b>
 <pre>addCommand(identifier, configs)</pre>
 Description: Is use to set a command to be executed on a timely routine or single call.
+
 Parameters: <br />
 * identifier String
 * configs Object
@@ -36,10 +37,11 @@ Parameters: <br />
 	* delay Integer - If iterative, the delay determines every time (in second) it executes a request.
 	* data Object - A user defined parameters for the server to process the data sent.
 	
-<pre>removeCommand(identifier)</pre>
+<pre>removeCommand(name)</pre>
 Description: Is use to halt an active routine command in order to stop requesting data in the server.
-Parameters: <br />
-* identifier String
+
+Parameters:
+* name String - Format: identifier.command
 	
 <b>Execute a Command</b>
 <br />
