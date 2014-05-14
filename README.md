@@ -16,7 +16,7 @@ var Command_Message = {
 
         __init: function(command) { // This function will be called by the AjaxCommander prior an Ajax executed
 	        $('div#messages_list').addClass('spinner');
-	},
+        },
 
     	showMessages: function(data) {
     		
