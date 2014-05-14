@@ -23,7 +23,7 @@ var Command_Message = {
 
     	showMessages: function(data) {
     		
-    		$('div#messages_list').html(data.html).show();
+    		$('div#messages_list').html(data.html).removeClass('spinner').show();
     	},
     	addMessage: function(data){
     	
@@ -46,7 +46,7 @@ var Command_Friends = {
 	},
 	showFriendOnline: function(data) {
 		
-		$('div#friends_online_list').html(data.html).removeClass('spinner').show();
+		$('div#friends_online_list').html(data.html).show();
 	}
 }
 </pre>
