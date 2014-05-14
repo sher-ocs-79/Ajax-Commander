@@ -14,6 +14,10 @@ Take note the variable 'Message' as our command identifier prefixed with a const
 <pre>
 var Command_Message = {
 
+        __init: function(command) { // This function will be called by the AjaxCommander prior an Ajax executed
+	        $('div#messages_list').addClass('spinner');
+	},
+
     	showMessages: function(data) {
     		
     		$('div#messages_list').html(data.html).show();
@@ -26,13 +30,17 @@ var Command_Message = {
 
 var Command_Friends = {
 
+	__init: function(command) { // This function will be called by the AjaxCommander prior an Ajax executed
+	        $('div#friends_request_list').addClass('spinner');
+	},
+
 	showFriendRequest: function(data) {
 		
-		$('div#friends_request_list').html(data.html).show();
+		$('div#friends_request_list').html(data.html).removeClass('spinner').show();
 	},
 	showFriendOnline: function(data) {
 		
-		$('div#friends_online_list').html(data.html).show();
+		$('div#friends_online_list').html(data.html).removeClass('spinner').show();
 	}
 }
 </pre>
