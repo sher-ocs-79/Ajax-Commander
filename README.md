@@ -35,7 +35,7 @@ var Command_Friends = {
 
 	__init: function(command) { // This function will be called by the AjaxCommander prior an Ajax executed
 	
-                if (command == 'showMessages') {
+                if (command == 'showFriendRequest') {
                     $('div#friends_request_list').addClass('spinner');
                 }
 	},
