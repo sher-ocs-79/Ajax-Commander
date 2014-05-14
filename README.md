@@ -15,7 +15,9 @@ Take note the variable 'Message' as our command identifier prefixed with a const
 var Command_Message = {
 
         __init: function(command) { // This function will be called by the AjaxCommander prior an Ajax executed
-	        $('div#messages_list').addClass('spinner');
+                if (command == 'showMessages') {
+                    $('div#messages_list').addClass('spinner');
+                }
         },
 
     	showMessages: function(data) {
@@ -31,7 +33,9 @@ var Command_Message = {
 var Command_Friends = {
 
 	__init: function(command) { // This function will be called by the AjaxCommander prior an Ajax executed
-	        $('div#friends_request_list').addClass('spinner');
+                if (command == 'showMessages') {
+                    $('div#friends_request_list').addClass('spinner');
+                }
 	},
 
 	showFriendRequest: function(data) {
