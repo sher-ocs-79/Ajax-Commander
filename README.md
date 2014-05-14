@@ -14,7 +14,7 @@ Take note the variable 'Message' as our command identifier prefixed with a const
 <pre>
 var Command_Message = {
 
-        // This function will be called by the AjaxCommander prior a command invoked by the AjaxCommnder
+        // This function will be called by the AjaxCommander prior to a command invoked by the AjaxCommnder
         __init: function(command) {
         
                 if (command == 'showMessages') {
@@ -34,7 +34,7 @@ var Command_Message = {
 
 var Command_Friends = {
 
-        // This function will be called by the AjaxCommander prior a command invoked by the AjaxCommnder
+        // This function will be called by the AjaxCommander prior to a command invoked by the AjaxCommnder
 	__init: function(command) {
 	
                 if (command == 'showFriendRequest') {
