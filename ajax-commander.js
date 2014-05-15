@@ -4,7 +4,7 @@
  * @link https://github.com/sher-ocs-79/Ajax-Commander
  * @copyright 2014
  * @license BSD
- * @version 1.0.0
+ * @version 1.1.1
  */
 (function(root, factory) {
 
@@ -19,7 +19,8 @@
             delay_default: 1,                    // 1 second default command execution
             delay_timeout: 1000,                 // execute commander every 1 milliseconds (1sec)
             maximum_delay: 60,                   // allow only less than 60secs
-            debug: true                          // display debug messages
+            debug: true,                         // display debug messages
+            beforeSend: '__init'                 // a method being called before an ajax command executed
         };
 
         var commands_heap;
@@ -184,6 +185,19 @@
             commands_heap[delay] = c_heap;
         };
 
+        var __preProcessCommand = function(command) { // A user defined pre-process before ajax executed
+            for(var i=0; i<command.length; i++) {
+
+                var o = eval("Command_" + command[i].name);
+                var p = com_config.beforeSend;
+
+                if (typeof o == 'object' && o.hasOwnProperty(p)) {
+                    eval("o."+p+"(command[i].command)");
+                    __console.log('PRE-PROCESS COMMAND EVALUATED: Command_'+command[i].name+'.'+p);
+                }
+            }
+        };
+
         var __evaluateCommand = function(com_response_data) {
 
             cdata = com_response_data.cdata;
@@ -208,6 +222,8 @@
                 if (process_commands.length) {
 
                     __console.log('TOTAL COMMANDS TO PROCESS: '+process_commands.length);
+
+                    __preProcessCommand(process_commands);
 
                     var _data = {commands:process_commands};
                     var _params = {url:com_config.url, data:_data, type:'post', dataType:'json'};
