@@ -35,7 +35,7 @@ var Command_Message = {
 var Command_Friends = {
 
         // This function will be called automatically prior to a command invoked by the AjaxCommnder
-	__init: function(command) {
+	__init: function(command, data) {
 	
                 if (command == 'showFriendRequest') {
                     $('div#friends_request_list').addClass('spinner');
