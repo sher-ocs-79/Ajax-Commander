@@ -4,7 +4,7 @@
  * @link https://github.com/sher-ocs-79/Ajax-Commander
  * @copyright 2014
  * @license BSD
- * @version 1.1.1
+ * @version 1.1.2
  */
 (function(root, factory) {
 
@@ -192,7 +192,7 @@
                 var p = com_config.beforeSend;
 
                 if (typeof o == 'object' && o.hasOwnProperty(p)) {
-                    eval("o."+p+"(command[i].command)");
+                    eval("o."+p+"(command[i].command, command[i].data)");
                     __console.log('PRE-PROCESS COMMAND EVALUATED: Command_'+command[i].name+'.'+p);
                 }
             }
