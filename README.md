@@ -15,7 +15,7 @@ Take note the variable 'Message' as our command identifier prefixed with a const
 var Command_Message = {
 
         // This function will be called automatically prior to a command invoked by the AjaxCommnder
-        __init: function(command) {
+        __init: function(command, data) {
         
                 if (command == 'showMessages') {
                     $('div#messages_list').addClass('spinner');
