@@ -4,7 +4,7 @@
  * @link https://github.com/sher-ocs-79/Ajax-Commander
  * @copyright 2014
  * @license BSD
- * @version 1.1.2
+ * @version 1.2.1
  */
 (function(root, factory) {
 
@@ -19,12 +19,16 @@
             delay_default: 1,                    // 1 second default command execution
             delay_timeout: 1000,                 // execute commander every 1 milliseconds (1sec)
             maximum_delay: 60,                   // allow only less than 60secs
-            debug: true,                         // display debug messages
-            beforeSend: '__init'                 // a method being called before an ajax command executed
+            debug: false,                        // display debug messages
+            beforeSend: '__init',                // a method being called before an ajax command executed
+            event_prefix: 'commander_'           // prefix for user triggered event
         };
 
         var commands_heap;
         var commands_que;
+        var commands_events;     // user triggered events
+
+        var commands_state_callback = {};   // user events state callback
 
         com_clock = 0;  // time delay clock
 
@@ -33,6 +37,8 @@
                 commands_heap = {};
             } else if (type == 'que') {
                 commands_que = {};
+            } else if (type == 'events') {
+                commands_events = {};
             }
         };
 
@@ -92,6 +98,41 @@
             }
         };
 
+        var __moveEventToQue = function() {
+            if (!com_object_count(commands_events)) return;
+
+            for(var e in commands_events) {  // each event will be pushed to que directly
+
+                if (!commands_events[e]) { continue; }
+
+                if (com_object_count(commands_que[commands_events[e].delay])) {
+                    commands_que[commands_events[e].delay].push(commands_events[e]);
+                } else {
+                    commands_que[commands_events[e].delay] = [commands_events[e]];
+                }
+
+                __executeEventState('que', e);
+            }
+
+            __initCommands('events');  // emptying the events since it had already transferred to que
+        };
+
+        var __addToEvent = function(event_id, objEvent, objEventData) {
+
+            if (!com_object_count(objEvent)) return;
+
+            objEvent.persistent = false;
+            objEvent.delay = com_config.delay_default;
+            objEvent.locked = 0;
+            objEvent.data = objEventData;
+            objEvent.event_id = event_id;
+
+            if (commands_events[event_id]) {
+                commands_events[event_id] = false;    // note: it overwrites previous same event
+            }
+            commands_events[event_id] = objEvent;
+        };
+
         var __addToQue = function(objCommand) {
 
             if (!commands_que) return;
@@ -140,6 +181,10 @@
 
                                 __console.log('SET LOCK COMMAND: '+objCommand.name+'.'+objCommand.command);
                                 c_heap[i].locked = 1;
+
+                                if (objCommand.event_id) {
+                                    __executeEventState('process', objCommand.event_id);
+                                }
                             }
                         }
                         commands_heap[c] = c_heap;
@@ -179,6 +224,10 @@
                         c_heap[i].locked = 0;
                     }
 
+                    if (objCommand.event_id) {
+                        __executeEventState('complete', objCommand.event_id);
+                    }
+
                     break;
                 }
             }
@@ -204,17 +253,19 @@
             if (com_response_data.command) {
                 try {
                     eval('Command_' + com_response_data.command + '(cdata);');
+                    __postProcessCommand(com_response_data.command, com_response_data.ctime);
                 } catch(e) {
                     __console.log(e);
                 }
                 __console.log('COMMAND EVALUATED: '+com_response_data.command);
             }
-            __postProcessCommand(com_response_data.command, com_response_data.ctime);
         };
 
         var __execCommands = function() {
 
             com_clock++;
+
+            __moveEventToQue();
 
             try
             {
@@ -263,6 +314,74 @@
             }
         };
 
+        var __executeEventState = function(state, event_id) {
+
+            __console.log('ON '+state+' STATE : '+event_id);
+
+            try
+            {
+                var state_callback = commands_state_callback[event_id] || {};
+                if (state_callback.hasOwnProperty(state)) {
+                    eval('state_callback.'+state+'();');
+                }
+            }
+            catch(e)
+            {
+                console.log(e);
+            }
+        };
+
+        var __extractEventData = function(e_data, e_obj, e_obj_data) {
+
+            // extracting commander data (data-commander_*) or plain data (data-*)
+
+            var e_prefix = com_config.event_prefix;
+            var e_keys = ['name', 'command'];
+            var str_keys = e_keys.join(' ');
+
+            for (var i in e_data) {
+                if (eval("i.search(/"+ e_prefix +"/gi) >= 0")) {  // commander data
+                    var f_key = eval("str_keys.match(/"+ i.substr(e_prefix.length) +"/i)");
+                    if (f_key) {
+                        e_obj[f_key] = e_data[i];
+                    }
+                } else {  // plain data
+                    e_obj_data[i] = e_data[i];
+                }
+            }
+        };
+
+        var __extractElementData = function(element, e_data) {
+
+            // extracting form element data
+
+            for(i=0; i<element.length; i++) {
+                var e = element[i];
+                if (typeof e.name != 'undefined') {     // not div element
+                    if (e.nodeName != 'FORM') {         // not form element
+                        if (e.name == "") { continue }
+                        if (e.type && (e.type == 'radio')) {   // input:radio element
+                            if (e.checked) {
+                                e_data[e.name] = e.value;
+                            }
+                        } else if (e.type && (e.type == 'checkbox')) {   // input:checkbox element
+                            if (e.checked) {
+                                if (typeof e_data[e.name] == 'undefined') {
+                                    e_data[e.name] = [e.value];
+                                } else {
+                                    e_data[e.name].push(e.value);
+                                }
+                            }
+                        } else {   // input:text element
+                            e_data[e.name] = e.value;
+                        }
+                    } else {
+                        __extractElementData(e.elements, e_data);   // if form element loop through its element
+                    }
+                }
+            }
+        };
+
         /** PUBLIC METHODS  **/
 
         this.init = function(config) {
@@ -271,7 +390,42 @@
 
             __initCommands('heap');
             __initCommands('que');
+            __initCommands('events');
             __execCommands();
+        };
+
+        this.executeEvent = function(element, state_callback) {
+            if (typeof element == 'object') {
+
+                var e_prefix = com_config.event_prefix;
+
+                var e_obj = {};
+                var e_obj_data = {};
+
+                try
+                {
+                    if (typeof element.jquery != 'undefined') {
+                        e_data = element.get(0).dataset;  // jquery function .get()
+                    } else {
+                        e_data = element;
+                    }
+
+                    e_id = e_data.hasOwnProperty(e_prefix+"id") ? eval("e_data."+e_prefix+"id") : Math.random().toString(36).substring(2);
+
+                    if (state_callback && typeof state_callback == 'object') {
+                        commands_state_callback[e_id] = state_callback;
+                    }
+                    __executeEventState('ready', e_id);
+
+                    __extractEventData(e_data, e_obj, e_obj_data);
+                    __extractElementData(element, e_obj_data);
+                    __addToEvent(e_id, e_obj, e_obj_data);
+                }
+                catch(e)
+                {
+                    console.log(e);
+                }
+            }
         };
 
         this.addCommand = function(name, param) {
@@ -284,7 +438,7 @@
 
             if (c_delay > com_config.maximum_delay) return;  // temporarily allow only less than 60 seconds delay
 
-            if (!__isCommandExist(name, command, c_delay)) {
+            if (!__isCommandExist(name, command, c_delay)) {  // checking command if already in heap, if not then add to que
 
                 __addToQue({
                     name: name,
