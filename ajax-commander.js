@@ -4,7 +4,7 @@
  * @link https://github.com/sher-ocs-79/Ajax-Commander
  * @copyright 2014
  * @license BSD
- * @version 1.2.1
+ * @version 1.2.2
  */
 (function(root, factory) {
 
@@ -194,16 +194,17 @@
             return process_commands;
         };
 
-        var __postProcessCommand = function(command, delay) {
+        var __postProcessCommand = function(command_obj, response_data) {
 
-            if (typeof command == 'object') {
-                delay = command.delay;
-                name = command.name;
-                command = command.command;
+            if (command_obj.name) {
+                name = command_obj.name;
+                command = command_obj.command;
+                delay = command_obj.delay
             } else {
-                var c = command.split('.');
-                name = c[0];
-                command = c[1];
+                var _c = command_obj.command.split('.');
+                name = _c[0];
+                command = _c[1];
+                delay = command_obj.ctime;
             }
 
             if (!commands_heap[delay]) return;
@@ -225,7 +226,7 @@
                     }
 
                     if (objCommand.event_id) {
-                        __executeEventState('complete', objCommand.event_id);
+                        __executeEventState('complete', objCommand.event_id, response_data);
                     }
 
                     break;
@@ -253,7 +254,7 @@
             if (com_response_data.command) {
                 try {
                     eval('Command_' + com_response_data.command + '(cdata);');
-                    __postProcessCommand(com_response_data.command, com_response_data.ctime);
+                    __postProcessCommand(com_response_data, cdata);
                 } catch(e) {
                     __console.log(e);
                 }
@@ -276,7 +277,7 @@
 
                     __preProcessCommand(process_commands);
 
-                    var _data = {commands:process_commands};
+                    var _data = {commander:process_commands};
                     var _params = {url:com_config.url, data:_data, type:'post', dataType:'json'};
                     var _success = function(data) {
                         if (data.success) {
@@ -293,7 +294,7 @@
 
                         __console.log('EXECUTING FAILOVER POST PROCESS COMMANDS');
                         for(var i=0; i<process_commands.length; i++) {
-                            __postProcessCommand(process_commands[i]);
+                            __postProcessCommand(process_commands[i], data);
                         }
                     })
                 }
@@ -314,7 +315,7 @@
             }
         };
 
-        var __executeEventState = function(state, event_id) {
+        var __executeEventState = function(state, event_id, response_data) {
 
             __console.log('ON '+state+' STATE : '+event_id);
 
@@ -322,7 +323,8 @@
             {
                 var state_callback = commands_state_callback[event_id] || {};
                 if (state_callback.hasOwnProperty(state)) {
-                    eval('state_callback.'+state+'();');
+                    response_data = response_data || {};
+                    eval('state_callback.'+state+'(response_data);');
                 }
             }
             catch(e)
