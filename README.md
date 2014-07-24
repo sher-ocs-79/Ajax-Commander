@@ -81,7 +81,16 @@ $.AjaxCommander.addCommand('Friends', {command:'showFriendOnline', persistent:tr
 </pre>
 
 Use Case: Adding a new messsage in the list.
-<pre>$.AjaxCommander.addCommand('Message', {command:'addMessage', data:{message: $('input#message').val()}});</pre>
+<pre>
+&lt;form id="form_message" <b>data-commander_id</b>="form_message" <b>data-commander_name</b>="Message" <b>data-commander_command</b>="addMessage" <b>data-action</b>="add-message"&gt;
+	&lt;input type="text" name="message" id="message" value=""/&gt;
+	&lt;button id="addM"&gt;Add Message&lt;/button&gt;
+&lt;/form&gt;
+
+$('button#addM').click(function(){			
+	$.AjaxCommander.executeEvent($('form#form_message'));
+});
+</pre>
 
 Use Case: Stop fetching or receiving new messages.
 <pre>$.AjaxCommander.removeCommand('Message.showMessages');</pre>
