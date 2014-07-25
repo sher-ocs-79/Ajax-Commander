@@ -83,8 +83,14 @@
 	</div>
 			
 	<div>
-		Type to search a message &nbsp;<input type="text" name="query" id="search_message" value="" data-commander_id="form_message" data-commander_name="Message" data-commander_command="searchMessage" data-action="search-message"/>
+		<input type="text" name="query" id="search_message" value="" data-commander_id="form_message" data-commander_name="Message" data-commander_command="searchMessage" data-action="search-message"/>&nbsp;Type to search a message from the list
 		<div id="searched_messages_list"></div>
+		<pre>
+			&lt;input type="text" name="query" id="search_message" <b>data-commander_id</b>="form_message" <b>data-commander_name</b>="Message" <b>data-commander_command</b>="searchMessage" <b>data-action</b>="search-message"/&gt; <br />
+			$('input#search_message').keyup(function(){
+				$.AjaxCommander.executeEvent($(this));
+			});
+		</pre>
 	</div>
 	
 	<br /><br />
@@ -105,6 +111,10 @@
 			addMessage: function(data){
 			
 				$('p#notification').html(data.html);
+			},
+			searchMessage: function(data) {
+		
+				$('div#searched_messages_list').html(data.html).show();
 			}
 		};
 	</pre>
