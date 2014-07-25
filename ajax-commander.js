@@ -4,7 +4,7 @@
  * @link https://github.com/sher-ocs-79/Ajax-Commander
  * @copyright 2014
  * @license BSD
- * @version 1.2.2
+ * @version 1.2.1
  */
 (function(root, factory) {
 
@@ -19,9 +19,10 @@
             delay_default: 1,                    // 1 second default command execution
             delay_timeout: 1000,                 // execute commander every 1 milliseconds (1sec)
             maximum_delay: 60,                   // allow only less than 60secs
-            debug: false,                        // display debug messages
+            debug: false,                        // display debug messages if true
             beforeSend: '__init',                // a method being called before an ajax command executed
-            event_prefix: 'commander_'           // prefix for user triggered event
+            event_prefix: 'commander_',          // prefix for user triggered event
+			commander_prefix: 'Commander_'		 // prefix for the commander callback
         };
 
         var commands_heap;
@@ -238,12 +239,12 @@
         var __preProcessCommand = function(command) { // A user defined pre-process before ajax executed
             for(var i=0; i<command.length; i++) {
 
-                var o = eval("Command_" + command[i].name);
+                var o = eval(com_config.commander_prefix + command[i].name);
                 var p = com_config.beforeSend;
 
                 if (typeof o == 'object' && o.hasOwnProperty(p)) {
                     eval("o."+p+"(command[i].command, command[i].data)");
-                    __console.log('PRE-PROCESS COMMAND EVALUATED: Command_'+command[i].name+'.'+p);
+                    __console.log('PRE-PROCESS COMMAND EVALUATED: '+com_config.commander_prefix+command[i].name+'.'+p);
                 }
             }
         };
@@ -253,7 +254,7 @@
             cdata = com_response_data.cdata;
             if (com_response_data.command) {
                 try {
-                    eval('Command_' + com_response_data.command + '(cdata);');
+                    eval(com_config.commander_prefix + com_response_data.command + '(cdata);');
                     __postProcessCommand(com_response_data, cdata);
                 } catch(e) {
                     __console.log(e);

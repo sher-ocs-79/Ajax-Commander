@@ -10,6 +10,23 @@
 	<script type="text/javascript">
 		// initiate the commander
 		$.AjaxCommander.init({url:'process-ajax.php'});
+		
+		$(document).ready(function(){
+		
+			$('button#showM').click(function(){
+				$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{action:'show-messages', limit:10}});
+			});
+			
+			$('button#addM').click(function(e){
+				e.preventDefault();
+				$.AjaxCommander.executeEvent($('form#form_message'));
+			});
+			
+			$('input#search_message').keyup(function(){
+				$.AjaxCommander.executeEvent($(this));
+			});
+		});
+		
 	</script>
 	
 </head>
@@ -21,13 +38,13 @@
 	</div>
 	<br />
 	<div>
-		<button id="showM" onclick="$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{limit:10}});">
+		<button id="showM">
 			Show Messages
 		</button>
 		<pre>
 			Showing messages will trigger an iterative call to the server every 5 seconds to fetch new data.
 			
-			$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{limit:10}});
+			$.AjaxCommander.addCommand('Message', {command:'showMessages', persistent:true, delay:5, data:{action:'show-messages', limit:10}});
 		</pre>
 	</div>
 	
@@ -46,26 +63,41 @@
 	<div id="messages_list"></div>
 	
 	<div>
-		<p id="notification"></p>
-		<input type="text" name="message" id="message" value="" />
-		<button onclick="$.AjaxCommander.addCommand('Message', {command:'addMessage', data:{message: $('input#message').val()}})">
-			Add Message
-		</button>
+		<form id="form_message" data-commander_id="form_message" data-commander_name="Message" data-commander_command="addMessage" data-action="add-message">
+			<p id="notification"></p>
+			<input type="text" name="message" id="message" value=""/>
+			<button id="addM">Add Message</button>
+		</form>
 		<pre>
-			Adding a message will do a single request to process data sent.
+			Executing an event to add a message in the messages list.
 			
-			$.AjaxCommander.addCommand('Message', {command:'addMessage', data:{message: $('input#message').val()}});
+			&lt;form id="form_message" <b>data-commander_id</b>="form_message" <b>data-commander_name</b>="Message" <b>data-commander_command</b>="addMessage" <b>data-action</b>="add-message"&gt;
+				&lt;input type="text" name="message" id="message" value=""/&gt;
+				&lt;button id="addM"&gt;Add Message&lt;/button&gt;
+			&lt;/form&gt;
+
+			$('button#addM').click(function(){			
+				$.AjaxCommander.executeEvent($('form#form_message'));
+			});
 		</pre>
 	</div>
+			
+	<div>
+		Type to search a message &nbsp;<input type="text" name="query" id="search_message" value="" data-commander_id="form_message" data-commander_name="Message" data-commander_command="searchMessage" data-action="search-message"/>
+		<div id="searched_messages_list"></div>
+	</div>
 	
+	<br /><br />
 	<p><b>Deal the Commander Callback</b></p>
 	<p>Every single command must have a global scope javascript object where callback methods can be evaluated by the AjaxCommander.</p>
 	<p>In this example we have "Command_Message" object declared in callback-commands.js</p>
-	<p>Take note the 'Message' as our command identifier prefixed with 'Command_' accordingly.</p>
-	<pre>
-	
-		var Command_Message = {
+	<p>Take note the 'Message' as our commander identifier prefixed with 'Commander_' accordingly.</p>
+	<pre>	
+		var Commander_Message = {
 		
+			__init: function(command, data) {
+			
+			},
 			showMessages: function(data) {
 				
 				$('div#messages_list').html(data.html).show();
